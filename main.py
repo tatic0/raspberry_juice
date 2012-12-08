@@ -9,6 +9,11 @@ import html_end, html_begin
 header = html_begin.main()
 foot = html_end.main()
 
+# cpu plot imports
+#import cpu_load
+# module is threaded :)
+#cpu_load.main()
+
 # simple log facility
 try:
     import logpyle
@@ -52,6 +57,17 @@ def disk_usage():
     b = header + "<div class='container'>" + a.replace('\n','</br>').replace('\t','&emsp;')+ "</div>" + foot
     return b
 
+@route('/cpu_usage')
+def cpu_usage():
+    ip = request.environ.get('REMOTE_ADDR')
+    cpu = open('/proc/loadavg','r')
+    data = cpu.read()
+    cpu.close()
+    logpyle.logger(ip, " requested cpu usage info") 
+    a = str(data[0:4]) 
+    b = header + "<div class='container'>" + a.replace('\n','</br>').replace('\t','&emsp;')+ "</div>" + foot
+    return b
+
 @route('/css/<filepath:path>')
 def server_static(filepath):
     return static_file(filepath, root='/home/pi/raspberry_juice/css') 
@@ -61,7 +77,9 @@ def server_static(filepath):
 @route('/js/<filepath:path>')
 def server_static(filepath):
     return static_file(filepath, root='/home/pi/raspberry_juice/js') 
-
+@route('/favicon.ico', method='GET')
+def favicon():
+    return static_file('favicon.ico', root='/home/pi/raspberry_juice/')
 
 
 # some errors
@@ -74,4 +92,4 @@ def error404(error):
     a = header + 'Shop is closed, sorry' + foot
     return a
 
-run(host='192.168.0.21', port=8080, reloader=True)
+run(host='0.0.0.0', port=8080, reloader=True)

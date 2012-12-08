@@ -37,6 +37,7 @@ def main():
               <li class="active"><a href="home">Home</a></li>
               <li><a href="my_ip">my ip</a></li>
               <li><a href="disk_usage">disk usage</a></li>
+              <li><a href="cpu_usage">cpu usage</a></li>
             </ul>
           </div><!--/.nav-collapse -->
         </div>
