@@ -10,6 +10,7 @@ header = html_begin.main()
 foot = html_end.main()
 
 # cpu plot imports
+import plot
 #import cpu_load
 # module is threaded :)
 #cpu_load.main()
@@ -65,7 +66,9 @@ def cpu_usage():
     cpu.close()
     logpyle.logger(ip, " requested cpu usage info") 
     a = str(data[0:4]) 
-    b = header + "<div class='container'>" + a.replace('\n','</br>').replace('\t','&emsp;')+ "</div>" + foot
+    plot.demo()
+    plotlink = "<a href=\"plot.jpeg\"> plot </a></br>"
+    b = header + "<div class='container'>" + a.replace('\n','</br>').replace('\t','&emsp;')+ "</div>"+ plotlink  + foot
     return b
 
 @route('/css/<filepath:path>')
@@ -80,6 +83,10 @@ def server_static(filepath):
 @route('/favicon.ico', method='GET')
 def favicon():
     return static_file('favicon.ico', root='/home/pi/raspberry_juice/')
+@route('/plot.jpeg', method='GET')
+def favicon():
+    return static_file('plot.jpeg', root='/home/pi/raspberry_juice/')
+
 
 
 # some errors

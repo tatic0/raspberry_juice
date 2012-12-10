@@ -4,13 +4,18 @@
 import time, sys
 
 def cpusage():
+  firststart = True
   clock = 0
   counter = 1
   #data = 0.00
   while True:
     cpu = open('/proc/loadavg','r')
     datafilename = "cpu-%d.data" %counter
-    #print(datafilename)
+    if firststart == True:
+      empty = open(datafilename,'w')
+      empty.write("logs restarted\n")
+      empty.close()
+      firststart = False
     graph = open(datafilename,'a')
     data = cpu.read()
     #print(clock, data[0:4])
@@ -27,10 +32,10 @@ def cpusage():
 def main():
   cpusage()
 
-#if __name__ == "__main__":
-#  try:
-#    #cpusage()
+if __name__ == "__main__":
+  try:
+    cpusage()
 #    main()
-#  except KeyboardInterrupt:
-#    print("Quitting application")
-#    sys.exit(0)
+  except KeyboardInterrupt:
+    print("Quitting application")
+    sys.exit(0)
