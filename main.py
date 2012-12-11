@@ -11,9 +11,6 @@ foot = html_end.main()
 
 # cpu plot imports
 import plot
-#import cpu_load
-# module is threaded :)
-#cpu_load.main()
 
 # simple log facility
 try:
@@ -23,7 +20,7 @@ except OSError:
     import logpyle
 
 # python imports
-import sys
+import sys, os, fnmatch
 
 bottle.debug(True)
 
@@ -58,19 +55,46 @@ def disk_usage():
     b = header + "<div class='container'>" + a.replace('\n','</br>').replace('\t','&emsp;')+ "</div>" + foot
     return b
 
+#datafiles = []
+#plotlinks = []
 @route('/cpu_usage')
 def cpu_usage():
+    datafiles = []
+    plotlinks = []
+
     ip = request.environ.get('REMOTE_ADDR')
+    logpyle.logger(ip, " requested cpu_usage") 
     cpu = open('/proc/loadavg','r')
     data = cpu.read()
     cpu.close()
     logpyle.logger(ip, " requested cpu usage info") 
     a = str(data[0:4]) 
-    plot.demo()
-    plotlink = "<a href=\"plot.jpeg\"> plot </a></br>"
-    b = header + "<div class='container'>" + a.replace('\n','</br>').replace('\t','&emsp;')+ "</div>"+ plotlink  + foot
+    for i in os.listdir('/home/pi/raspberry_juice/'):
+      if fnmatch.fnmatch(i, "*.data"):
+        datafiles.append(i)    
+    for each in datafiles:
+      plotlink = "<a href=\"%s\"> %s </a>" %(each,each)
+      print(plotlink)
+      plotlinks.append(plotlink)
+    
+    b = header + "<div class='container'>" + a.replace('\n','</br>').replace('\t','&emsp;')+ "</br>"+ str(plotlinks) + "</div>" + foot
     return b
 
+@route('/<name>.data')
+def makegraph(name):
+    plot.plot(name)
+    a = "<div class=\"container\"><a href=%s.jpg>%s.jpg</a></div>" %(name,name)
+    a = header + a + foot
+    return a
+@route('/<name>.jpg', methog='GET')
+def plottedgraph(name):
+    ip = request.environ.get('REMOTE_ADDR')
+    logpyle.logger(ip, " cpu usage plotfile requested") 
+    sfile = "%s.jpg"%name
+    return static_file(sfile, root='/home/pi/raspberry_juice/')
+    #a = "<div class=\"container\"><img src=\"/%s.jpg\"></div>" %name
+    #a = header + a + foot
+    #return a 
 @route('/css/<filepath:path>')
 def server_static(filepath):
     return static_file(filepath, root='/home/pi/raspberry_juice/css') 
@@ -82,9 +106,13 @@ def server_static(filepath):
     return static_file(filepath, root='/home/pi/raspberry_juice/js') 
 @route('/favicon.ico', method='GET')
 def favicon():
+    ip = request.environ.get('REMOTE_ADDR')
+    logpyle.logger(ip, " requested favicon") 
     return static_file('favicon.ico', root='/home/pi/raspberry_juice/')
 @route('/plot.jpeg', method='GET')
-def favicon():
+def testplot():
+    ip = request.environ.get('REMOTE_ADDR')
+    logpyle.logger(ip, " requested plot.jpeg") 
     return static_file('plot.jpeg', root='/home/pi/raspberry_juice/')
 
 

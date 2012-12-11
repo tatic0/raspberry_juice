@@ -24,7 +24,7 @@ def cpusage():
     graph.close()
     cpu.close()
     time.sleep(5)
-    clock +=1
+    clock +=5
     if clock == 600:
       clock =0
       counter +=1
