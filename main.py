@@ -69,6 +69,21 @@ def cpu_usage():
     cpu.close()
     logpyle.logger(ip, " requested cpu usage info") 
     a = str(data[0:4]) 
+    if float(a) > 1:
+      a = 1
+    width = 300 # 100%
+    cpuu = (float(a) * 100) * 3 # 100% = 300 p
+    r1w=(cpuu/2)
+    r1w_round = round(r1w)
+    r2w = 300 - r1w 
+    print(r1w, r1w_round, r2w, cpuu)
+  
+    svg = """
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1">
+    <rect id="rect1" x="0" y="0" width="%d" height="20" style="fill:rgb(254,0,0);stroke-width:1;stroke:rgb(0,0,0)" />
+    <rect id="rect2" x="%d" y="0" width="%d" height="20" style="fill:rgb(0,255,0);stroke-width:1;stroke:rgb(0,0,0)" />
+    </svg>
+    </br></br> """ %(r1w,r1w_round,r2w)
     for i in os.listdir('/home/pi/raspberry_juice/'):
       if fnmatch.fnmatch(i, "*.data"):
         datafiles.append(i)    
@@ -77,7 +92,7 @@ def cpu_usage():
       print(plotlink)
       plotlinks.append(plotlink)
     
-    b = header + "<div class='container'>" + a.replace('\n','</br>').replace('\t','&emsp;')+ "</br>"+ str(plotlinks) + "</div>" + foot
+    b = header + "<div class='container'>" + a.replace('\n','</br>').replace('\t','&emsp;')+ "</br>"+ str(plotlinks) + svg + "</div>" + foot
     return b
 
 @route('/<name>.data')

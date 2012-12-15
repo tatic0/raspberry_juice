@@ -25,7 +25,7 @@ def cpusage():
     cpu.close()
     time.sleep(5)
     clock +=5
-    if clock == 600:
+    if clock == 8640: #roughly 12 h
       clock =0
       counter +=1
 
