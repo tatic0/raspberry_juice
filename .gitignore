@@ -42,4 +42,8 @@ tmp/
 *.data
 *.jpg
 *.jpeg
+css/
+img/
+js/
 *.bz2
+
