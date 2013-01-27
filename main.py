@@ -55,45 +55,86 @@ def disk_usage():
     b = header + "<div class='container'>" + a.replace('\n','</br>').replace('\t','&emsp;')+ "</div>" + foot
     return b
 
-#datafiles = []
-#plotlinks = []
-@route('/cpu_usage')
-def cpu_usage():
-    datafiles = []
-    plotlinks = []
+# maybe splitting this in two funcions/ulrs 
+# will fix the bouble header crap
+#@route('/cpu_usage')
 
-    ip = request.environ.get('REMOTE_ADDR')
-    logpyle.logger(ip, " requested cpu_usage") 
-    cpu = open('/proc/loadavg','r')
-    data = cpu.read()
-    cpu.close()
-    logpyle.logger(ip, " requested cpu usage info") 
-    a = str(data[0:4]) 
-    if float(a) > 1:
-      a = 1
-    width = 300 # 100%
-    cpuu = (float(a) * 100) * 3 # 100% = 300 p
-    r1w=(cpuu/2)
-    r1w_round = round(r1w)
-    r2w = 300 - r1w 
-    print(r1w, r1w_round, r2w, cpuu)
-  
-    svg = """
-    <svg xmlns="http://www.w3.org/2000/svg" version="1.1">
-    <rect id="rect1" x="0" y="0" width="%d" height="20" style="fill:rgb(254,0,0);stroke-width:1;stroke:rgb(0,0,0)" />
-    <rect id="rect2" x="%d" y="0" width="%d" height="20" style="fill:rgb(0,255,0);stroke-width:1;stroke:rgb(0,0,0)" />
-    </svg>
-    </br></br> """ %(r1w,r1w_round,r2w)
-    for i in os.listdir('/home/pi/raspberry_juice/'):
-      if fnmatch.fnmatch(i, "*.data"):
-        datafiles.append(i)    
-    for each in datafiles:
-      plotlink = "<a href=\"%s\"> %s </a>" %(each,each)
-      print(plotlink)
-      plotlinks.append(plotlink)
-    
-    b = header + "<div class='container'>" + a.replace('\n','</br>').replace('\t','&emsp;')+ "</br>"+ str(plotlinks) + svg + "</div>" + foot
-    return b
+class cpumon:
+  def cpu_usage(self):
+      datafiles = []
+      plotlinks = []
+
+      ip = request.environ.get('REMOTE_ADDR')
+      logpyle.logger(ip, " requested cpu_usage") 
+      cpu = open('/proc/loadavg','r')
+      data = cpu.read()
+      cpu.close()
+      logpyle.logger(ip, " requested cpu usage info") 
+      a = str(data[0:4]) 
+      if float(a) > 1:
+        a = 1
+      width = 300 # 100%
+      cpuu = (float(a) * 100) * 3 # 100% = 300 p
+      r1w=(cpuu/2)
+      r1w_round = round(r1w)
+      r2w = 300 - r1w 
+      #print(r1w, r1w_round, r2w, cpuu)
+      
+      # name variables like this:
+      # self.r2w = r2w  
+      # and so on
+
+      # 8< --- cut here ----
+      
+      
+      js = """
+      <script src="http://code.jquery.com/jquery-latest.js"></script>
+      <script>
+        var url = "http://"+window.location.host+'/cpu_usage#cpu';
+        var rellenar = function() {
+          $.get(
+            url,
+            function(text) {
+                $('#cpu').html(text);
+            }
+          );
+        };
+
+        setTimeout(rellenar, 5000);
+      </script>
+      """
+      svg = """
+      <div id="cpu" class="container">
+      <svg xmlns="http://www.w3.org/2000/svg" version="1.1">
+      <defs>
+          <filter id="f1" x="0" y="0" width="100%%" height="20">
+            <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+            <feGaussianBlur result="blurOut" in="offOut" stdDeviation="5" />
+            <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+          </filter>
+      </defs>
+      <rect id="rect1" x="0" y="0" width="%d" height="20" style="fill:rgb(254,0,0);stroke-width:1;stroke:rgb(0,0,0);opacity:0.5" filter="url(#f1)"/>
+      <rect id="rect2" x="%d" y="0" width="%d" height="20" style="fill:rgb(0,255,0);stroke-width:1;stroke:rgb(0,0,0);opacity:0.7" filter="url(#f1)" />
+      </svg>
+      </div>
+      </br></br> """ %(r1w,r1w_round,r2w)
+      #for i in os.listdir('/home/pi/raspberry_juice/'):
+      #  if fnmatch.fnmatch(i, "*.data"):
+      #    datafiles.append(i)    
+      #for each in datafiles:
+      #  plotlink = "<a href=\"%s\"> %s </a>" %(each,each)
+      #  print(plotlink)
+      #  plotlinks.append(plotlink)
+      
+      #b = header + "<div class='container'>" + a.replace('\n','</br>').replace('\t','&emsp;')+ "</br>"+ str(plotlinks) + svg + "</div>" + foot
+      b = header +  svg  + js + foot
+      return b
+
+@route('/cpu_usage')
+def cpuret():
+  cpucall = cpumon()
+  a = cpucall.cpu_usage()
+  return a
 
 @route('/<name>.data')
 def makegraph(name):

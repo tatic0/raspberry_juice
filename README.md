@@ -7,4 +7,3 @@ depends on:
 -----------
 
 python-gnuplot
-bootstrap, twitter

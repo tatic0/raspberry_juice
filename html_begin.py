@@ -44,7 +44,7 @@ def main():
       </div>
     </div>
 
-    <div class="container">
+    <div id="title" class="container">
 
       <h1>Raspberry monitor</h1>
       <p> raspberry monitoring site </p>
